@@ -10,10 +10,27 @@
  */
 public class FoundElement {
     
-    int startI;
-    int startJ;
-    int id;
-    int direction; // 0 - horizontal, 1 - vertical, 2 - left diag, 3 - right diag
+    final private int startI;
+    final private int startJ;
+    final private int id;
+    final private int direction; // 0 - horizontal, 1 - vertical, 2 - left diag, 3 - right diag
+    
+    private int value; // 0 = "X", 1 = "0"
+    
+    public int getStartI()
+    {
+        return startI;
+    }
+    
+    public int getStartJ()
+    {
+        return startJ;
+    }
+    
+    public int getID()
+    {
+        return id;
+    }
     
     public FoundElement(int stI, int stJ, int myID, int dir)
     {

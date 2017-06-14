@@ -1,12 +1,27 @@
 import static java.lang.System.exit;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Game {
-    Board mainBoard;
+    private final Board mainBoard;
+    private AIPlayer computerPlayer;
+    
+    public int return1() {return 1; }
 
-    public Game(int sX, int sY) {
-        mainBoard = new Board(sX, sY);
+    public Game() {
+        mainBoard = new Board(this);
+        computerPlayer = new AIPlayer(this);
+    }
+    
+    public AIPlayer getAIPlayer()
+    {
+        return computerPlayer;
+    }
+    
+    public Board getMainBoard()
+    {
+        return mainBoard;
     }
     
     public static int getNumber()
@@ -15,7 +30,7 @@ public class Game {
         Scanner scan = new Scanner(System.in);
 
         String s = scan.nextLine();
-        if(s.matches("[-+]?\\d+") == false) // ???? ?? ???????? ??????:
+        if(s.matches("[-+]?\\d+") == false) 
         {
             System.out.println("You've entered not a number ");
             s = scan.nextLine();
@@ -33,27 +48,20 @@ public class Game {
         return num;
     }
     
-    public boolean isCellsOK(int num)
+   public boolean isCellOK(int num)
     {
-        if(num > mainBoard.size_x - 1)
-            return false;
-        if(num < 0)
-            return false;
-        return true;
+        return num >= 0 && num < mainBoard.getSize();
     }
 
-    public boolean isCellsEmpty(int x, int y)
+    public boolean isCellEmpty(int x, int y)
     {
-        if(mainBoard.fields[x][y] == 0)
-            return true;
-        else
-            return false;
+        return mainBoard.getFields(x, y) == 0;
     }
 
 
     public void startGame()
     {
-        int numberOfMotion = 1;  
+        int numberOfTurn = 1;  
         
         initCombination(); // initialization of all combinations
         mainBoard.init();
@@ -62,75 +70,96 @@ public class Game {
         
         while(true)
         {
-            if(numberOfMotion % 2 == 0)
-                System.out.println("\nKRESTIKI");
-            else
+            if(numberOfTurn % 2 != 0)
             {
              System.out.println("\nNOLIKI");    
              System.out.println("Enter coordinate of row: ");
              int i = getNumber();
-             while(isCellsOK(i) == false)
+             while(!isCellOK(i))
              {
                  System.out.println("Check your coordinte: ");
                  i = getNumber();
              }
              System.out.println("Enter coordinate of column: ");
              int j = getNumber();
-             while(isCellsOK(j) == false)
+             while(!isCellOK(j))
              {
                  System.out.println("Check your coordinte: ");
                  j = getNumber();
              }
 
-             if(isCellsEmpty(i, j) == false)
+             if(!isCellEmpty(i, j))
              {
-                 while(isCellsEmpty(i, j) == false)
+                 while(!isCellEmpty(i, j))
                  {
                      System.out.println("Cells is not empty. Try again ");
 
                      System.out.println("Enter coordinate of row: ");
                      i = getNumber();
-                     while(isCellsOK(i) == false)
+                     while(!isCellOK(i))
                      {
                          System.out.println("Check your coordinte: ");
                          i = getNumber();
                      }
                      System.out.println("Enter coordinate of column:: ");
                      j = getNumber();
-                     while(isCellsOK(j) == false)
+                     while(!isCellOK(j))
                      {
                          System.out.println("Check your coordinte: ");
                          j = getNumber();
                      }
                  }
              }
-             mainBoard.fields[i][j] = 1; // set motion on board
+             mainBoard.setFields(i, j, 1); // set motion on board
              mainBoard.printBoard();  
-             numberOfMotion++;
+             numberOfTurn++;
              continue;
                
            }
-            mainBoard.searchCombination(mainBoard.allCombinations, numberOfMotion);
+            computerPlayer.searchCombination(mainBoard.getAllCombinations(), numberOfTurn);
             mainBoard.printBoard();
 
-            if(mainBoard.end_analyze() == 1) // end game check
-            {
-                if(numberOfMotion % 2 == 0)
-                    System.out.println("X have won!");
-                else
-                    System.out.println("0 have won!");
-                return;
-            }
-            numberOfMotion++;
+            numberOfTurn++;
         }
         
+    }
+    
+    public boolean startGameComputerVsComputer()
+    {
+        boolean end = false;
+        int numberOfTurn = 1;  
+        
+        initCombination(); // initialization of all combinations
+        mainBoard.init();
+        mainBoard.printBoard();
+        Scanner scan = new Scanner(System.in);
+        //computerPlayer.searchCombination(mainBoard.getAllCombinations(), numberOfTurn);
+        while(true)
+        {
+            if(numberOfTurn % 2 != 0)
+            {
+             
+             end = computerPlayer.searchCombination(mainBoard.getAllCombinations(), numberOfTurn);
+             
+             mainBoard.printBoard();  
+             numberOfTurn++;
+             continue;
+               
+           }
+            end = computerPlayer.searchCombination(mainBoard.getAllCombinations(), numberOfTurn);
+            mainBoard.printBoard();
+
+            numberOfTurn++;
+        }
+        //return end;
     }
     
     public void initCombination()
     {
         // INITIALIZATION OF ALL COMBINATIONS //
         
-        ArrayList<Combination> allCombinations = new ArrayList<Combination>();
+        List<Combination> allCombinations = new ArrayList<Combination>();
+        
         mainBoard.setComb(allCombinations);
         
         int[] comb1 = {1, 1, 1, 1, 1};
@@ -139,67 +168,81 @@ public class Game {
         int[] comb3 = {0, 1, 1, 1, 1};
         int[] comb4 = {1, 1, 1, 1, 0};
         
-        int[] comb5 = {0, 1, 0, 1, 1, 1};
-        int[] comb6 = {1, 1, 1, 0, 1, 0};
-        int[] comb7 = {0, 1, 1, 0, 1, 1};
-        int[] comb8 = {1, 1, 0, 1, 1, 0};
-        int[] comb9 = {0, 1, 1, 1, 0, 1};
+        int[] comb5 = {1, 0, 1, 1, 1};
+        int[] comb6 = {1, 1, 1, 0, 1};
+        int[] comb7 = {1, 1, 0, 1, 1};
+        int[] comb8 = {1, 1, 0, 1, 1};
+        int[] comb9 = {1, 1, 1, 0, 1};
         
         int[] comb10 = {0, 1, 1, 1, 0};
         int[] comb11 = {0, 1, 1, 1};
         int[] comb12 = {1, 1, 1, 0};
         
         int[] comb13 = {0, 1, 1, 0, 1};
+        int[] comb13_1 = {0, 1, 1, 0, 1, 0};
         int[] comb14 = {1, 0, 1, 1, 0};
+        int[] comb14_1 = {0, 1, 0, 1, 1, 0};
         int[] comb15 = {0, 1, 0, 1, 1};
+        int[] comb15_1 = {0, 1, 0, 1, 1, 0};
         int[] comb16 = {1, 1, 0, 1, 0};
+        int[] comb16_1 = {0, 1, 1, 0, 1, 0};
         
         int[] comb17 = {0, 1, 1, 0};
         int[] comb18 = {0, 1, 0};
     
     
-        Combination fiveInRow = new Combination(99999, comb1);
+        Combination fiveInRow = new Combination(99999, comb1, 100);
         allCombinations.add(fiveInRow);
         
-        Combination openQuadr = new Combination(7000, comb2);
+        Combination openQuadr = new Combination(7000, comb2, -1);
         allCombinations.add(openQuadr);
         
-        Combination semiClosedQuadr1 = new Combination(4000, comb3);
+        Combination semiClosedQuadr1 = new Combination(4000, comb3, 0);
         allCombinations.add(semiClosedQuadr1);
-        Combination semiClosedQuadr2 = new Combination(4000, comb4);
+        Combination semiClosedQuadr2 = new Combination(4000, comb4, 4);
         allCombinations.add(semiClosedQuadr2);
         
-        Combination semiClosedQuadrWithBreach1 = new Combination(2000, comb5);
+        Combination semiClosedQuadrWithBreach1 = new Combination(2000, comb5, 1);
         allCombinations.add(semiClosedQuadrWithBreach1);
-        Combination semiClosedQuadrWithBreach2 = new Combination(2000, comb6);
+        Combination semiClosedQuadrWithBreach2 = new Combination(2000, comb6, 3);
         allCombinations.add(semiClosedQuadrWithBreach2);
-        Combination semiClosedQuadrWithBreach3 = new Combination(2000, comb7);
+        Combination semiClosedQuadrWithBreach3 = new Combination(2000, comb7, 2);
         allCombinations.add(semiClosedQuadrWithBreach3);
-        Combination semiClosedQuadrWithBreach4 = new Combination(2000, comb8);
+        Combination semiClosedQuadrWithBreach4 = new Combination(2000, comb8, 2);
         allCombinations.add(semiClosedQuadrWithBreach4);
-        Combination semiClosedQuadrWithBreach5 = new Combination(2000, comb9);
+        Combination semiClosedQuadrWithBreach5 = new Combination(2000, comb9, 3);
         allCombinations.add(semiClosedQuadrWithBreach5);
         
-        Combination openTriplet = new Combination(3000, comb10);
+        Combination openTriplet = new Combination(3000, comb10, -1);
         allCombinations.add(openTriplet);
         
-        Combination semiClosedTriplet1 = new Combination(1500, comb11);
+        Combination semiClosedTripletWithBreach1_1 = new Combination(2000, comb13_1, 3);
+        allCombinations.add(semiClosedTripletWithBreach1_1);
+        Combination semiClosedTripletWithBreach2_1 = new Combination(2000, comb14_1, 2);
+        allCombinations.add(semiClosedTripletWithBreach2_1);
+        Combination semiClosedTripletWithBreach3_1 = new Combination(2000, comb15_1, 2);
+        allCombinations.add(semiClosedTripletWithBreach3_1);
+        Combination semiClosedTripletWithBreach4_1 = new Combination(2000, comb16_1, 3);
+        allCombinations.add(semiClosedTripletWithBreach4_1);
+        
+        Combination semiClosedTriplet1 = new Combination(1500, comb11, 0);
         allCombinations.add(semiClosedTriplet1);
-        Combination semiClosedTriplet2 = new Combination(1500, comb12);
+        Combination semiClosedTriplet2 = new Combination(1500, comb12, 3);
         allCombinations.add(semiClosedTriplet2);
         
-        Combination semiClosedTripletWithBreach1 = new Combination(800, comb13);
+        Combination semiClosedTripletWithBreach1 = new Combination(800, comb13, 3);
         allCombinations.add(semiClosedTripletWithBreach1);
-        Combination semiClosedTripletWithBreach2 = new Combination(800, comb14);
+        Combination semiClosedTripletWithBreach2 = new Combination(800, comb14, 1);
         allCombinations.add(semiClosedTripletWithBreach2);
-        Combination semiClosedTripletWithBreach3 = new Combination(800, comb15);
+        Combination semiClosedTripletWithBreach3 = new Combination(800, comb15, 2);
         allCombinations.add(semiClosedTripletWithBreach3);
-        Combination semiClosedTripletWithBreach4 = new Combination(800, comb16);
+        Combination semiClosedTripletWithBreach4 = new Combination(800, comb16, 2);
         allCombinations.add(semiClosedTripletWithBreach4);
         
-        Combination openDeuce = new Combination(200, comb17);
+        
+        Combination openDeuce = new Combination(200, comb17, -1);
         allCombinations.add(openDeuce);
-        Combination openOne = new Combination(50, comb18);
+        Combination openOne = new Combination(50, comb18, -1);
         allCombinations.add(openOne);
         
         // END OF INITIALIZATION //
