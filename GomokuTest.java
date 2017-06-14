@@ -44,14 +44,51 @@ public class GomokuTest {
         
         Game mainGame = new Game(); // init game with board 15x15
         mainGame.initCombination();
-        mainGame.getMainBoard().initForTest(); // (fields)
         
         
-        // Determinig the turn
+        // 1st test
+        mainGame.getMainBoard().initForTest1(); // (fields)
         mainGame.getAIPlayer().searchCombination(mainGame.getMainBoard().getAllCombinations(), 2);
-        assertEquals(8, mainGame.getMainBoard().getLastI()); // Determining the turn "X" [pos I]
-        assertEquals(10, mainGame.getMainBoard().getLastJ()); // Determining the turn "X" [pos J]
-        // End determining the turn
+        assertEquals(1, mainGame.getMainBoard().getLastI()); // Determining the turn "X" [pos I]
+        assertEquals(5, mainGame.getMainBoard().getLastJ()); // Determining the turn "X" [pos J]
+        // End 1st test
+        
+        // 2nd test
+        mainGame.getMainBoard().initForTest2(); // (fields)
+        mainGame.getAIPlayer().searchCombination(mainGame.getMainBoard().getAllCombinations(), 2);
+        assertEquals(2, mainGame.getMainBoard().getLastI()); // Determining the turn "X" [pos I]
+        assertEquals(0, mainGame.getMainBoard().getLastJ()); // Determining the turn "X" [pos J]
+        // End 2nd test
+        
+        // 3rd test
+        mainGame.getMainBoard().initForTest3(); // (fields)
+        mainGame.getAIPlayer().searchCombination(mainGame.getMainBoard().getAllCombinations(), 2);
+        if(mainGame.getMainBoard().getLastI() == 1) // if turn is up
+        {
+            assertEquals(1, mainGame.getMainBoard().getLastI()); // Determining the turn "X" [pos I]
+            assertEquals(5, mainGame.getMainBoard().getLastJ()); // Determining the turn "X" [pos J]
+        }
+        else // if turn is down
+        {
+            assertEquals(5, mainGame.getMainBoard().getLastI()); // Determining the turn "X" [pos I]
+            assertEquals(5, mainGame.getMainBoard().getLastJ()); // Determining the turn "X" [pos J]
+        }
+        // End 3rd test
+        
+        // 4th test
+        mainGame.getMainBoard().initForTest4(); // (fields)
+        mainGame.getAIPlayer().searchCombination(mainGame.getMainBoard().getAllCombinations(), 2);
+        if(mainGame.getMainBoard().getLastJ() == 1) // if turn is left
+        {
+            assertEquals(2, mainGame.getMainBoard().getLastI()); // Determining the turn "X" [pos I]
+            assertEquals(1, mainGame.getMainBoard().getLastJ()); // Determining the turn "X" [pos J]
+        }
+        else // if turn is right
+        {
+            assertEquals(2, mainGame.getMainBoard().getLastI()); // Determining the turn "X" [pos I]
+            assertEquals(5, mainGame.getMainBoard().getLastJ()); // Determining the turn "X" [pos J]
+        }
+        // end 4th test
         
         
         //assertEquals(1, mainGame.getMainBoard().endAnalyze()); // Determining the winner (if comment determing the turn) 
